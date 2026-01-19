@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432" # port mapping between host machine and container
+    volumes: # distinguish between named volumes and bind mounts
+      - postgres_data:/var/lib/postgresql/data # named volume for persisting data
+      - ./sql:/docker-entrypoint-initdb.d # bind mount for init SQL scripts
+    healthcheck: # define a check after the container is up running
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      retries: 5
+      timeout: 3s
+
+volumes: # here is where named volume is created
+  postgres_data:
