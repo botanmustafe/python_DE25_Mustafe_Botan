@@ -1,0 +1,16 @@
+- Ett program består av flera kurser
+- En kurs kan ingå i flera program.
+- Ett program beviljas i tre omgångar.
+- Varje omgång representeras av en klass.
+- En klass tillhör exakt ett program
+- En utbildningledare ansvarar för tre klasser
+- Varje klass har exakt en utbildningsledare
+- En utbildare undervisar kurser
+- En utbildare kan undervisa flera kurser
+- En kurs kan ha flera utbildare
+- En utbildare kan vara konsult
+- En konsult är kopplad till ett konsultbolag
+- Ett konsultbolag har flera konsulter
+- Yrkesco har flera anläggningar (orter)
+- En klass bedrivs på en anläggning
+- Känsliga personuppgifter lagras i separata entiteter och kopplas till relevanta personer
