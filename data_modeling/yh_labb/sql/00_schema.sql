@@ -1,20 +1,20 @@
 -- orter/anläggningar där klasser bedrivs
 CREATE TABLE
-    anlaggning (
+    IF NOT EXISTS anlaggning (
         anlaggning_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         namn VARCHAR(50) NOT NULL UNIQUE
     );
 
 -- utbildningsprogram (till exempel data engineer)
 CREATE TABLE
-    program (
+    IF NOT EXISTS program (
         program_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         namn VARCHAR(120) NOT NULL UNIQUE
     );
 
 -- kurser (kan kopplas till program via program_kurs eller var fristående)
 CREATE TABLE
-    kurs (
+    IF NOT EXISTS kurs (
         kurs_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         namn VARCHAR(120) NOT NULL,
         kurskod VARCHAR(30) NOT NULL UNIQUE,
@@ -24,7 +24,7 @@ CREATE TABLE
 
 -- utbildningsledare 
 CREATE TABLE
-    utbildningsledare (
+    IF NOT EXISTS utbildningsledare (
         utbildningsledare_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         fornamn VARCHAR(60) NOT NULL,
         efternamn VARCHAR(60) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE
 
 -- utbildare
 CREATE TABLE
-    utbildare (
+    IF NOT EXISTS utbildare (
         utbildare_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         fornamn VARCHAR(60) NOT NULL,
         efternamn VARCHAR(60) NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE
 
 -- konsultbolag och företagsinfo
 CREATE TABLE
-    konsultbolag (
+    IF NOT EXISTS konsultbolag (
         konsultbolag_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         foretagsnamn VARCHAR(140) NOT NULL,
         organisationsnr VARCHAR(20) NOT NULL UNIQUE,
@@ -53,7 +53,7 @@ CREATE TABLE
 
 -- konsult (utbildare som är kopplad till konsultbolag + har timarvode)
 CREATE TABLE
-    konsult (
+    IF NOT EXISTS konsult (
         konsult_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         utbildare_id INTEGER NOT NULL UNIQUE REFERENCES utbildare (utbildare_id),
         konsultbolag_id INTEGER NOT NULL REFERENCES konsultbolag (konsultbolag_id),
@@ -62,7 +62,7 @@ CREATE TABLE
 
 -- klass
 CREATE TABLE
-    klass (
+    IF NOT EXISTS klass (
         klass_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         program_id INTEGER NOT NULL REFERENCES program (program_id),
         anlaggning_id INTEGER NOT NULL REFERENCES anlaggning (anlaggning_id),
@@ -71,7 +71,7 @@ CREATE TABLE
 
 -- student tillhör en klasss
 CREATE TABLE
-    student (
+    IF NOT EXISTS student (
         student_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         klass_id INTEGER NOT NULL REFERENCES klass (klass_id),
         fornamn VARCHAR(60) NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE
 -- bryggtabell: program <-> kurs (M:N)
 -- en rad = detta program innehåller denna kurs
 CREATE TABLE
-    program_kurs (
+    IF NOT EXISTS program_kurs (
         program_id INTEGER NOT NULL REFERENCES program (program_id),
         kurs_id INTEGER NOT NULL REFERENCES kurs (kurs_id),
         PRIMARY KEY (program_id, kurs_id)
@@ -91,7 +91,7 @@ CREATE TABLE
 -- bryggtabell: kurs <-> utbildare (M:N)
 -- en rad = denna utbildare undervisar denna kurs
 CREATE TABLE
-    kurs_utbildare (
+    IF NOT EXISTS kurs_utbildare (
         kurs_id INTEGER NOT NULL REFERENCES kurs (kurs_id),
         utbildare_id INTEGER NOT NULL REFERENCES utbildare (utbildare_id),
         PRIMARY KEY (kurs_id, utbildare_id)
@@ -100,7 +100,7 @@ CREATE TABLE
 -- Känsliga personuppgifter i separat tabell 
 -- En rad kopplas antingen till en student eller en utbildningsledare
 CREATE TABLE
-    kansliga_uppgifter (
+    IF NOT EXISTS kansliga_uppgifter (
         kanslig_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         student_id INTEGER UNIQUE REFERENCES student (student_id),
         utbildningsledare_id INTEGER UNIQUE REFERENCES utbildningsledare (utbildningsledare_id),
