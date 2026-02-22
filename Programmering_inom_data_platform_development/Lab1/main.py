@@ -14,7 +14,7 @@ OUTPUT_DIR = Path("output")
 ALLOWED_CURRENCIES = {"SEK", "EUR", "USD"}
 
 
-# läser in json till en dataframe
+# läser in json-filen till semikolon-separerad data
 
 def load_products(path: Path) -> pd.DataFrame:
     return pd.read_csv(path, sep=";", dtype=str)
@@ -43,7 +43,7 @@ def add_flags(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # flaggning för extremt höga priser
-# “Extremt höga priser” topp 5%
+# “Extremt höga priser” = topp 5%
 
     valid_prices = df.loc[df["price"].notna() & df["price"].ge(0), "price"]
 
@@ -55,10 +55,15 @@ def add_flags(df: pd.DataFrame) -> pd.DataFrame:
         df["flag_extreme_price"] = False
         df["extreme_price_limit"] = pd.NA
 
+
+# enkla regler för "omöjliga" värden (det som gör att en rad avvisas)
+
     currency_ok = df["currency"].isin(ALLOWED_CURRENCIES)
     id_ok = df["id"].notna() & (df["id"].astype(str).str.strip() != "")
     name_ok = df["name"].notna() & (df["name"].astype(str).str.strip() != "")
     price_ok = df["price"].notna() & df["price"].ge(0)
+
+ # avvisa om någon av grundreglerna inte är uppfylld
 
     df["is_rejected"] = ~(currency_ok & id_ok & name_ok & price_ok)
 
@@ -66,24 +71,36 @@ def add_flags(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def write_outputs(df: pd.DataFrame) -> None:
+
+# skapa output-mappen om den inte finns
+
     OUTPUT_DIR.mkdir(exist_ok=True)
 
     accepted = df.loc[~df["is_rejected"]].copy()
 
+ # behåll bara rader som inte avvisatsc
     summary = pd.DataFrame([{
         "snittpris": float(accepted["price"].mean()) if len(accepted) else pd.NA,
         "medianpris": float(accepted["price"].median()) if len(accepted) else pd.NA,
         "antal produkter": int(len(accepted)),
         "antal produkter med saknat pris": int(df["flag_missing_price"].sum()),
     }])
+
+    # spara csv-filen i output
     summary.to_csv(OUTPUT_DIR / "analytics_summary.csv", index=False)
 
 
 def main() -> None:
+      
+    # kontrollera att filen finns innan vi kör
     if not INPUT_FILE.exists():
         raise FileNotFoundError(
             f"Hittar inte {INPUT_FILE}. Lägg products.json i projektroten.")
 
+
+    #ingest: läs in data
+    #transform: rensa, flagga, avvisa
+    #access: skapa output-fil
     df = load_products(INPUT_FILE)
     df = add_flags(df)
     write_outputs(df)
